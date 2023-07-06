@@ -2,12 +2,25 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"runtime"
 	"strings"
 )
 
 func main() {
+	// Print machine/server information
+	infoServer()
+	// run server on port 8080
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		go infoServer()
+		fmt.Fprintf(w, "Hello, World!")
+	})
+	http.ListenAndServe(":8080", nil)
+}
+
+func infoServer() {
+
 	fmt.Println("Machine/Server Information:")
 	fmt.Println("===========================")
 
