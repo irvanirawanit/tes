@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 )
@@ -11,12 +13,17 @@ import (
 func main() {
 	// Print machine/server information
 	infoServer()
+	installLibreOffice()
 	// run server on port 8080
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		go infoServer()
 		fmt.Fprintf(w, "Hello, World!")
 	})
-	http.ListenAndServe(":9000", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9000" // Default port if not specified
+	}
+	http.ListenAndServe(":"+port, nil)
 }
 
 func infoServer() {
@@ -94,4 +101,20 @@ func getUbuntuVersion() string {
 		}
 	}
 	return ""
+}
+
+func installLibreOffice() {
+	cmd := exec.Command("sudo", "apt-get", "update")
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cmd = exec.Command("sudo", "apt-get", "install", "libreoffice", "-y")
+	err = cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("LibreOffice installation completed successfully.")
 }
