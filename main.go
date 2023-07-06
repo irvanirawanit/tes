@@ -16,7 +16,7 @@ func main() {
 		go infoServer()
 		fmt.Fprintf(w, "Hello, World!")
 	})
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":9000", nil)
 }
 
 func infoServer() {
@@ -27,6 +27,18 @@ func infoServer() {
 	// Retrieve and print the operating system details
 	fmt.Printf("Operating System: %s\n", runtime.GOOS)
 	fmt.Printf("Architecture: %s\n", runtime.GOARCH)
+	fmt.Printf("Compiler: %s\n", runtime.Compiler)
+	fmt.Printf("Go Version: %s\n", runtime.Version())
+	// check ubuntu or centos
+	// check if ubuntu
+	if runtime.GOOS == "linux" {
+		// check if centos
+		if _, err := os.Stat("/etc/centos-release"); err == nil {
+			fmt.Printf("CentOS Version: %s\n", getCentOSVersion())
+		} else {
+			fmt.Printf("Ubuntu Version: %s\n", getUbuntuVersion())
+		}
+	}
 
 	// Retrieve and print the host name
 	host, err := os.Hostname()
@@ -58,4 +70,28 @@ func infoServer() {
 		envVarParts := strings.SplitN(envVar, "=", 2)
 		fmt.Printf("%s = %s\n", envVarParts[0], envVarParts[1])
 	}
+}
+
+func getCentOSVersion() string {
+	// Read the version file
+	version, err := os.ReadFile("/etc/centos-release")
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(version))
+}
+
+func getUbuntuVersion() string {
+	// Read the version file
+	version, err := os.ReadFile("/etc/os-release")
+	if err != nil {
+		return ""
+	}
+	// Find the version line
+	for _, line := range strings.Split(string(version), "\n") {
+		if strings.HasPrefix(line, "VERSION=") {
+			return strings.Trim(line, "VERSION=\"")
+		}
+	}
+	return ""
 }
