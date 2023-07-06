@@ -11,9 +11,14 @@ import (
 )
 
 func main() {
-	// Print machine/server information
-	infoServer()
-	installLibreOffice()
+	// run file sh
+	cmd := exec.Command("sh", "file.sh")
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Error file sh nya : ", err)
+		log.Fatal(err)
+	}
+
 	// run server on port 8080
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		go infoServer()
